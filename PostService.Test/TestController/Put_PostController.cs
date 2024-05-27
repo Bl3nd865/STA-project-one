@@ -30,7 +30,7 @@ namespace PostService.Test.TestController
         [Fact]
         public async Task Put_PostController_200Ok()
         {
-            // Arrange
+            // Arrange: Create DTO and model for the test
             var updatePostDTO = new UpdatePostDTO
             {
                 Id = id,
@@ -55,17 +55,17 @@ namespace PostService.Test.TestController
                 CreatedAt = post.CreatedAt
             };
 
+            // Mock service and mapper behavior
             _postServices.Setup(service => service.EditAsync(post).Result).Returns(post);
             _mapper.Setup(mapper => mapper.Map<Post>(It.IsAny<UpdatePostDTO>())).Returns(post);
             _mapper.Setup(mapper => mapper.Map<ResponsePostDTO>(It.IsAny<Post>())).Returns(responsePostDTO);
 
             var controller = new PostController(_mapper.Object, _postServices.Object);
 
-            // Act
+            // Act: Call the Put method
             var res = await controller.Put(updatePostDTO);
 
-
-            // Assert
+            // Assert: Check if the response is 200 OK
             var result = Assert.IsType<OkObjectResult>(res);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
@@ -73,8 +73,7 @@ namespace PostService.Test.TestController
         [Fact]
         public async Task Put_PostController_400BadRequest()
         {
-            // Do something that failed the real controller to perform the bad result
-            // Arrange
+            // Arrange: Create DTO and model for the bad request test
             var updatePostDTO = new UpdatePostDTO
             {
                 Id = id,
@@ -89,18 +88,14 @@ namespace PostService.Test.TestController
                 UserName = updatePostDTO.UserName,
                 CreatedAt = updatePostDTO.CreatedAt
             };
-            // For instance dont map the object or send null value
-            // here without mapping, a null object will pass to the controller 
 
-            //_postServices.Setup(service => service.AddAsync(post).Result).Returns(post);
-
+            // Do not mock mapper to simulate failure
             var controller = new PostController(_mapper.Object, _postServices.Object);
 
-            // Act
+            // Act: Call the Put method
             var res = await controller.Put(updatePostDTO);
 
-
-            // Assert
+            // Assert: Check if the response is 400 Bad Request
             var result = Assert.IsType<BadRequestResult>(res);
             Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
         }
@@ -108,7 +103,7 @@ namespace PostService.Test.TestController
         [Fact]
         public void Put_PostController_Validation()
         {
-            // Arrange
+            // Arrange: Create DTO with invalid data
             var updatePostDTO = new UpdatePostDTO
             {
                 Id = id,
@@ -117,16 +112,14 @@ namespace PostService.Test.TestController
                 CreatedAt = DateTime.Now
             };
 
-
-            // Act
+            // Act: Validate the DTO
             var validationContext = new ValidationContext(updatePostDTO);
             var validationResult = new List<ValidationResult>();
 
             bool isValid = Validator.TryValidateObject(updatePostDTO, validationContext, validationResult, true);
 
-            // Assert
+            // Assert: Check if the validation failed and contains the expected error message
             Assert.False(isValid);
-            // The error message should be the same error message that specified in the DTO object which is going to be validated
             Assert.Contains(validationResult, vr => vr.ErrorMessage == "The Title field is required.");
         }
     }
