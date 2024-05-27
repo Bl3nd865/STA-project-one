@@ -1,6 +1,5 @@
 ﻿using MapsterMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PostService.API.Controllers;
@@ -32,7 +31,7 @@ namespace PostService.Test.TestController
         [Fact]
         public async Task Delete_PostController_200Ok()
         {
-            // Arrange
+            // Arrange: Set up mock behavior and controller
             var data = new PostDummyData();
             var returnObj = data.GetAllPost().FirstOrDefault(p => p.Id == id);
 
@@ -40,10 +39,10 @@ namespace PostService.Test.TestController
 
             var controller = new PostController(_mapper.Object, _postServices.Object);
 
-            // Act
+            // Act: Call the Delete method
             var res = await controller.Delete(id);
 
-            // Assert
+            // Assert: Check if the response is 200 OK
             var okResult = Assert.IsType<OkResult>(res);
             Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
         }
@@ -51,7 +50,7 @@ namespace PostService.Test.TestController
         [Fact]
         public async Task Delete_PostController_400BadRequest()
         {
-            // Arrange
+            // Arrange: Set up mock behavior and controller
             var data = new PostDummyData();
             var returnObj = data.GetAllPost().FirstOrDefault(p => p.Id == "");
 
@@ -59,10 +58,10 @@ namespace PostService.Test.TestController
 
             var controller = new PostController(_mapper.Object, _postServices.Object);
 
-            // Act
+            // Act: Call the Delete method with an invalid ID
             var res = await controller.Delete("");
 
-            // Assert
+            // Assert: Check if the response is 400 Bad Request
             var badRequestResult = Assert.IsType<BadRequestResult>(res);
             Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
         }
